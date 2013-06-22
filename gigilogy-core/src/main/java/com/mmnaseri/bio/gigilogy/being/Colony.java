@@ -10,7 +10,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author Mohammad Milad Naseri (m.m.naseri@gmail.com)
  * @since 1.0 (2013/6/22, 20:42)
  */
-public class Colony<G extends Gigil<G>> {
+public class Colony {
 
     private static final List<String> names = new ArrayList<String>();
 
@@ -28,9 +28,14 @@ public class Colony<G extends Gigil<G>> {
 
     }
 
-    private final Map<String, G> beings = new ConcurrentHashMap<String, G>();
+    private final Map<String, Gigil> beings = new ConcurrentHashMap<String, Gigil>();
+    private final String name;
 
-    public void add(G gigil) {
+    public Colony(String name) {
+        this.name = name;
+    }
+
+    public void add(Gigil gigil) {
         if (gigil.getName() != null && beings.containsKey(gigil.getName())) {
             throw new IllegalArgumentException("Another gigil with this name already exists");
         }
@@ -45,28 +50,55 @@ public class Colony<G extends Gigil<G>> {
             }
             gigil.setName(name);
         }
+        gigil.setColony(this);
         beings.put(gigil.getName(), gigil);
     }
 
-    public Set<G> getNearBy(G gigil, double distance) {
+    public void addAll(Collection<Gigil> gigils) {
+        for (Gigil gigil : gigils) {
+            add(gigil);
+        }
+    }
+
+    public Set<Gigil> getNearBy(Gigil gigil, double distance) {
         if (!beings.containsValue(gigil)) {
             throw new IllegalArgumentException(gigil + " is not a part of this colony");
         }
-        final HashSet<G> set = new HashSet<G>();
-        for (G being : beings.values()) {
+        final HashSet<Gigil> set = new HashSet<Gigil>();
+        for (Gigil being : beings.values()) {
             if (being.equals(gigil)) {
                 continue;
             }
-            if (getDistance(gigil, being) <= distance) {
+            if (gigil.getDistance(being) <= distance) {
                 set.add(being);
             }
         }
         return set;
     }
 
-    private double getDistance(G first, G second) {
-        return Math.sqrt(Math.pow(first.getPosition().getX() - second.getPosition().getX(), 2) +
-                Math.pow(first.getPosition().getY() - second.getPosition().getY(), 2));
+    public String getName() {
+        return name;
+    }
+
+    public Map<String, Gigil> getBeings() {
+        return beings;
+    }
+
+    public void join(Colony colony) {
+        for (Gigil being : beings.values()) {
+            being.setName(being.getName() + " of " + getName());
+            colony.add(being);
+            remove(being);
+        }
+    }
+
+    public void remove(Gigil gigil) {
+        beings.remove(gigil.getName());
+    }
+
+    @Override
+    public String toString() {
+        return getName() + " colony";
     }
 
 }
