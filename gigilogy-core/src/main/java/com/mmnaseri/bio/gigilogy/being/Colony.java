@@ -86,9 +86,9 @@ public class Colony {
 
     public void join(Colony colony) {
         for (Gigil being : beings.values()) {
+            remove(being);
             being.setName(being.getName() + " of " + getName());
             colony.add(being);
-            remove(being);
         }
     }
 

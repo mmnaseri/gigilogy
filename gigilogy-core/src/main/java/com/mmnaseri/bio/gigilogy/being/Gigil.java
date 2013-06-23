@@ -57,6 +57,9 @@ public abstract class Gigil {
     }
 
     public void die() {
+        if (colony != null) {
+            colony.remove(this);
+        }
     }
 
     public abstract double getHealth();

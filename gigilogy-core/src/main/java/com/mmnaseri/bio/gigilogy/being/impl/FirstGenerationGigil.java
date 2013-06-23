@@ -75,7 +75,7 @@ public class FirstGenerationGigil extends Gigil {
                 gigil.setColony(colony);
                 colony.add(gigil);
                 colony.add(this);
-            } else if (getColony() != null && gigil.getColony() != null) {
+            } else if (getColony() != null && gigil.getColony() != null && !getColony().equals(gigil.getColony())) {
                 if (myHealth > gigilsHealth) {
                     log.info(gigil.getColony() + " will join stronger colony " + getColony());
                     gigil.getColony().join(getColony());
@@ -94,6 +94,7 @@ public class FirstGenerationGigil extends Gigil {
             }
             log.info("They had " + gigils.size() + " kids");
         }
+        log.info("Colonies have reached agreements. Moving on.");
         return gigils;
     }
 
@@ -114,8 +115,10 @@ public class FirstGenerationGigil extends Gigil {
                 return 1;
             }
             return health;
-        } else if (getAge() < 35) {
+        } else if (getAge() < 30) {
             return random * 0.3;
+        } else if (getAge() < 40) {
+            return random * 0.1;
         }
         return 0;
     }
