@@ -36,20 +36,6 @@ public class Colony {
     }
 
     public void add(Gigil gigil) {
-        if (gigil.getName() != null && beings.containsKey(gigil.getName())) {
-            throw new IllegalArgumentException("Another gigil with this name already exists");
-        }
-        if (gigil.getName() == null) {
-            String name = names.get(new Random().nextInt(names.size()));
-            while (beings.containsKey(name)) {
-                if (beings.size() >= names.size()) {
-                    name = names.get(new Random().nextInt(names.size())) + " " + name;
-                } else {
-                    name = names.get(new Random().nextInt(names.size()));
-                }
-            }
-            gigil.setName(name);
-        }
         gigil.setColony(this);
         beings.put(gigil.getName(), gigil);
     }

@@ -2,6 +2,7 @@ package com.mmnaseri.bio.gigilogy;
 
 import com.agileapes.nemo.action.Action;
 import com.agileapes.nemo.api.Option;
+import com.mmnaseri.bio.gigilogy.being.Gigil;
 import com.mmnaseri.bio.gigilogy.life.Colonization;
 import com.mmnaseri.bio.gigilogy.life.State;
 
@@ -10,7 +11,7 @@ import com.mmnaseri.bio.gigilogy.life.State;
  * @since 1.0 (2013/6/23, 18:55)
  */
 @SuppressWarnings("FieldCanBeLocal")
-public class Run extends Action {
+public class Simulate extends Action {
 
     @Option(alias = 'i', required = true)
     private int initial;
@@ -23,6 +24,9 @@ public class Run extends Action {
 
     @Override
     public void execute() throws Exception {
+        if (limit > Gigil.getLimit()) {
+            throw new IllegalArgumentException("The limit cannot exceed " + Gigil.getLimit());
+        }
         final State state = new State(initial, limit, colonization);
         int max = state.getGigils().size();
         for (int i = 0; i < initial * 1000; i++) {

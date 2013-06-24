@@ -13,11 +13,11 @@ public class Runner {
 
     public static void main(String[] args) throws Exception {
         final ExecutorContext context = new ExecutorContext();
-        final Run action = new Run();
-        action.setDefaultAction(true);
-        context.addAction("simulate", action);
+        context.addAction("simulate", new Simulate());
         context.addAction("help", new HelpAction());
-        context.addAction("usage", new UsageAction());
+        final UsageAction usageAction = new UsageAction();
+        usageAction.setDefaultAction(true);
+        context.addAction("usage", usageAction);
         try {
             context.execute(args);
         } catch (Exception e) {

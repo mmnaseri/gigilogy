@@ -2,6 +2,8 @@ package com.mmnaseri.bio.gigilogy.being;
 
 import com.mmnaseri.bio.gigilogy.life.Action;
 import com.mmnaseri.bio.gigilogy.life.Position;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -17,6 +19,7 @@ import java.util.Set;
  */
 public abstract class Gigil {
 
+    private static final Log log = LogFactory.getLog(Gigil.class);
     private static final List<String> names = new ArrayList<String>();
     private static final List<String> used = new ArrayList<String>();
 
@@ -43,23 +46,35 @@ public abstract class Gigil {
     public abstract Set<? extends Gigil> reproduce(Gigil gigil);
 
     protected Gigil() {
-        String name = names.get(new Random().nextInt(names.size()));
-        while (used.contains(name)) {
-            if (used.size() >= names.size()) {
-                name = names.get(new Random().nextInt(names.size())) + " " + name;
-            } else {
-                name = names.get(new Random().nextInt(names.size()));
-            }
+        log.info("Deciding on a name for the newly born gigil");
+        String name;
+        if (names.isEmpty()) {
+            log.info("We will have to improvise");
+            do {
+                int index = new Random().nextInt(used.size() - 1);
+                name = used.get(index) + " " + used.get(index + 1);
+            } while (used.contains(name));
+        } else {
+            name = names.get(new Random().nextInt(names.size()));
         }
+        names.remove(name);
         used.add(name);
         setName(name);
+        log.info("The name is: " + name);
         friendliness = new Random().nextDouble();
+        log.info("Friendliness level is: " + friendliness);
+    }
+
+    public static int getLimit() {
+        return Integer.MAX_VALUE;
     }
 
     public void die() {
         if (colony != null) {
             colony.remove(this);
         }
+        names.add(name);
+        used.remove(name);
     }
 
     public abstract double getHealth();
