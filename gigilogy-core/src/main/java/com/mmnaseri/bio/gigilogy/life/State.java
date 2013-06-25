@@ -15,6 +15,18 @@ import java.util.*;
 public class State {
 
     public final static Log log = LogFactory.getLog(State.class);
+    private final static String[] fightReasons = new String[]{
+            "I don't like your face",
+            "You are way too close, buddy",
+            "You are standing in my way",
+            "You are so mean"
+    };
+    private final static String[] friendshipReasons = new String[]{
+            "You look like a good person",
+            "I think I've met you before",
+            "I want to know you better",
+            "we seem to share a connection"
+    };
     private final Set<Gigil> gigils = new HashSet<Gigil>();
     private final Set<Gigil> dying = new HashSet<Gigil>();
     private int day = 0;
@@ -145,15 +157,14 @@ public class State {
             if (neighbors.isEmpty()) {
                 final List<Position> spots = getEmptySpots(gigil, 1);
                 if (spots.isEmpty()) {
-                    log.info(gigil + " has no neighbors, and nowhere to go :-(");
+                    log.info(gigil + ": I am so lonely :-(");
                     continue;
                 }
                 final Position position = spots.get(new Random().nextInt(spots.size()));
-                log.info(gigil + " has no neighbors. Moving to " + position);
+                log.info(gigil + ": I want to meet people. I will move to  " + position);
                 gigil.setPosition(position);
                 continue;
             }
-            log.info(gigil + " has " + neighbors.size() + " neighbors");
             if (neighbors.size() > 5) {
                 log.info("Too many of them in one place. A fight is unavoidable ...");
                 int health = 0;
@@ -173,30 +184,34 @@ public class State {
                     continue;
                 }
                 final Action action = gigil.meet(neighbor);
-                log.info(gigil + " meets " + neighbor);
-                log.info(gigil + " has decided to " + action.toString().toLowerCase() + " " + neighbor + " this time");
+                log.info(gigil + ": Hey " + neighbor.getName() + "!");
                 if (action.equals(Action.LEAVE)) {
+                    log.info(gigil + ": since you don't answer me, I will move away");
                     final List<Position> spots = getEmptySpots(gigil, 1);
                     if (!spots.isEmpty()) {
                         final Position position = spots.get(new Random().nextInt(spots.size()));
-                        log.info(gigil + " will simply move away from " + gigil.getPosition() + " to " + position);
                         gigil.setPosition(position);
                     } else {
-                        log.info(gigil + " will have to remain in place");
+                        log.info(gigil + ": but I don't have anywhere to go :-(");
                     }
                 } else if (action.equals(Action.FIGHT)) {
-                    log.info("A good fight is going on!");
+                    log.info(gigil + ": " + fightReasons[new Random().nextInt(friendshipReasons.length)] + ", and I'm gonna kick your ass");
                     final boolean fight = gigil.fight(neighbor);
                     Gigil looser = fight ? neighbor : gigil;
+                    log.info(looser + " has lost the fight");
                     if (Math.random() < 0.2) {
                         log.info("The fight was too much for " + looser);
                         markForDeath(looser);
                     }
-                    log.info(looser + " has lost the fight");
                 } else if (action.equals(Action.BEFRIEND)) {
-                    log.info(gigil + " will try to make babies with " + neighbor);
-                    final Set<? extends Gigil> kids = gigil.reproduce(neighbor);
-                    newlyBorn.put(gigil, kids);
+                    log.info(gigil + ": " + friendshipReasons[new Random().nextInt(friendshipReasons.length)] + ", let's be friends!");
+                    log.info(neighbor + ": Alrighty!");
+                    if (gigil.canReproduce(neighbor)) {
+                        log.info(gigil + ": I say, " + neighbor.getName() + ", let's get intimate.");
+                        final Set<? extends Gigil> kids = gigil.reproduce(neighbor);
+                        log.info("They got together and had " + kids.size() + " kids");
+                        newlyBorn.put(gigil, kids);
+                    }
                 }
             }
         }

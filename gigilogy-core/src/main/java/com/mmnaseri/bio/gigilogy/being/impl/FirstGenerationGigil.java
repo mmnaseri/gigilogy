@@ -6,11 +6,10 @@ import com.mmnaseri.bio.gigilogy.life.Action;
 import com.mmnaseri.bio.gigilogy.life.Gender;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Random;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author Mohammad Milad Naseri (m.m.naseri@gmail.com)
@@ -35,23 +34,7 @@ public class FirstGenerationGigil extends Gigil {
     @Override
     public Set<? extends Gigil> reproduce(Gigil gigil) {
         log.debug(this + " and " + gigil + " try to reproduce");
-        if (equals(gigil)) {
-            log.error("One cannot have kids with oneself!");
-            return Collections.emptySet();
-        } else if (getDistance(gigil) > 1) {
-            log.error("They are too far apart to reproduce");
-            return Collections.emptySet();
-        } else if (!(gigil instanceof FirstGenerationGigil)) {
-            log.error("They are not of the same race");
-            return Collections.emptySet();
-        } else if (gender.equals(((FirstGenerationGigil) gigil).getGender())) {
-            log.error("They are of the same sex");
-            return Collections.emptySet();
-        } else if (getAge() < REPRODUCTION_AGE_LIMIT) {
-            log.error(this + " is too young!");
-            return Collections.emptySet();
-        } else if (gigil.getAge() < REPRODUCTION_AGE_LIMIT) {
-            log.error(gigil + " is too young!");
+        if (!canReproduce(gigil))  {
             return Collections.emptySet();
         }
         final HashSet<FirstGenerationGigil> gigils = new HashSet<FirstGenerationGigil>();
@@ -96,6 +79,31 @@ public class FirstGenerationGigil extends Gigil {
         }
         log.info("Colonies have reached agreements. Moving on.");
         return gigils;
+    }
+
+    @Override
+    public boolean canReproduce(Gigil gigil) {
+        boolean can = true;
+        if (equals(gigil)) {
+            log.error("One cannot have kids with oneself!");
+            can = false;
+        } else if (getDistance(gigil) > 1) {
+            log.error("They are too far apart to reproduce");
+            can = false;
+        } else if (!(gigil instanceof FirstGenerationGigil)) {
+            log.error("They are not of the same race");
+            can = false;
+        } else if (gender.equals(((FirstGenerationGigil) gigil).getGender())) {
+            log.error("They are of the same sex");
+            can = false;
+        } else if (getAge() < REPRODUCTION_AGE_LIMIT) {
+            log.error(this + " is too young!");
+            can = false;
+        } else if (gigil.getAge() < REPRODUCTION_AGE_LIMIT) {
+            log.error(gigil + " is too young!");
+            can = false;
+        }
+        return can;
     }
 
     @Override
@@ -161,4 +169,5 @@ public class FirstGenerationGigil extends Gigil {
     public String toString() {
         return super.toString() + " [" + getGender().toString().charAt(0) + "]";
     }
+
 }

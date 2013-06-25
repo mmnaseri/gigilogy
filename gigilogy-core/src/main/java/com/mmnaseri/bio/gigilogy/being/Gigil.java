@@ -8,10 +8,7 @@ import org.apache.commons.logging.LogFactory;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author Mohammad Milad Naseri (m.m.naseri@gmail.com)
@@ -21,7 +18,9 @@ public abstract class Gigil {
 
     private static final Log log = LogFactory.getLog(Gigil.class);
     private static final List<String> names = new ArrayList<String>();
+    private static final List<String> remaining = new ArrayList<String>();
     private static final List<String> used = new ArrayList<String>();
+    private static final int limit;
 
     static {
         final BufferedReader reader = new BufferedReader(new InputStreamReader(Gigil.class.getResourceAsStream("/names.txt")));
@@ -34,7 +33,8 @@ public abstract class Gigil {
         } catch (IOException e) {
             throw new RuntimeException("Failed to read names");
         }
-
+        limit = names.size();
+        remaining.addAll(names);
     }
 
     private int age = 0;
@@ -44,21 +44,38 @@ public abstract class Gigil {
     protected final double friendliness;
 
     public abstract Set<? extends Gigil> reproduce(Gigil gigil);
+    public abstract boolean canReproduce(Gigil gigil);
 
     protected Gigil() {
         log.info("Deciding on a name for the newly born gigil");
         String name;
-        if (names.isEmpty()) {
+        if (used.containsAll(remaining)) {
             log.info("We will have to improvise");
+            int times = Math.max((int) Math.round((double) used.size() / (double) names.size()), 2);
             do {
-                int index = new Random().nextInt(used.size() - 1);
-                name = used.get(index) + " " + used.get(index + 1);
+                final List<String> theName = new ArrayList<String>();
+                for (int i = 0; i < times; i++) {
+                    theName.add(names.get(new Random().nextInt(names.size())));
+                }
+                name = "";
+                for (int i = 0; i < times; i++) {
+                    if (i > 0) {
+                        name += " ";
+                    }
+                    name += theName.get(i);
+                }
             } while (used.contains(name));
         } else {
-            name = names.get(new Random().nextInt(names.size()));
+            do {
+                if (remaining.size() == 1) {
+                    name = remaining.get(0);
+                } else {
+                    name = remaining.get(new Random().nextInt(remaining.size()));
+                }
+            } while (used.contains(name));
         }
-        names.remove(name);
         used.add(name);
+        remaining.remove(name);
         setName(name);
         log.info("The name is: " + name);
         friendliness = new Random().nextDouble();
@@ -66,15 +83,17 @@ public abstract class Gigil {
     }
 
     public static int getLimit() {
-        return Integer.MAX_VALUE;
+        return limit;
     }
 
     public void die() {
         if (colony != null) {
             colony.remove(this);
         }
-        names.add(name);
-        used.remove(name);
+        log.info(this + " is dead, and " + name + " can be used again");
+        if (used.remove(name)) {
+            remaining.add(name);
+        }
     }
 
     public abstract double getHealth();
@@ -88,7 +107,7 @@ public abstract class Gigil {
     }
 
     public void ageOn() {
-        age ++;
+        age++;
     }
 
     public Position getPosition() {
