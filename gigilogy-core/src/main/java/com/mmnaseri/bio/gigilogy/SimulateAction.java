@@ -18,7 +18,7 @@ import com.mmnaseri.bio.gigilogy.life.State;
                 "around with their lives, while keeping a state of the world they live in. See the " +
                 "options for more customization."
 )
-public class Simulate extends Action {
+public class SimulateAction extends Action {
 
     @Option(alias = 'i', required = true)
     @Help(
