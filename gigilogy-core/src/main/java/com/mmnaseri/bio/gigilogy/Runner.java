@@ -23,7 +23,7 @@ public class Runner {
         usageAction.setDefaultAction(true);
         context.addAction("usage", usageAction);
         try {
-            context.execute("simulate", "-i", "2");
+            context.execute(args);
         } catch (Exception e) {
             System.err.println(new ExceptionMessage(e));
         }
